@@ -10,7 +10,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
-    namespace = 'mozilla.components.concept.bookmarks.file.importer'
+    namespace = 'mozilla.components.concept.bookmarks.file'
 }
 
 dependencies {
