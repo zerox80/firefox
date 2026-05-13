@@ -5,7 +5,6 @@
 package mozilla.components.feature.ipprotection
 
 import kotlinx.coroutines.flow.Flow
-import mozilla.components.feature.ipprotection.store.state.EligibilityStatus
 
 /**
  * Storage exposing the eligibility of the IP Protection feature.
