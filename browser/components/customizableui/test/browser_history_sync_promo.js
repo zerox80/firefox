@@ -347,3 +347,33 @@ add_task(async function test_cta_closes_standalone_panel() {
   sandbox.restore();
   clearDismissals();
 });
+
+// Closing a window tears its document down without running
+// disconnectedCallback, so the promo has to drop its observers on unload or the
+// observer service keeps the whole window alive until shutdown.
+add_task(async function test_observers_removed_when_window_closes() {
+  let countObservers = () =>
+    [...Services.obs.enumerateObservers("sync-ui-state:update")].length;
+  let before = countObservers();
+
+  let win = await BrowserTestUtils.openNewBrowserWindow();
+  await new CustomizableUITestUtils(win).openMainMenu();
+  let historyView = PanelMultiView.getViewNode(win.document, "PanelUI-history");
+  let shown = BrowserTestUtils.waitForEvent(historyView, "ViewShown");
+  win.document.getElementById("appMenu-history-button").click();
+  await shown;
+  let promo = historyView.querySelector("#PanelUI-history-sync-promo");
+  await promo.updateComplete;
+  Assert.greater(
+    countObservers(),
+    before,
+    "The promo in the new window registered its observers"
+  );
+
+  await BrowserTestUtils.closeWindow(win);
+  is(
+    countObservers(),
+    before,
+    "Closing the window removed the promo's observers"
+  );
+});
